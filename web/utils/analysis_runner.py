@@ -302,17 +302,60 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         elif llm_provider == "google":
             # Google AI不需要backend_url，使用默认的OpenAI格式
             config["backend_url"] = "https://api.openai.com/v1"
+        elif llm_provider == "openrouter":
+            # OpenRouter使用OpenAI兼容API
+            config["backend_url"] = "https://openrouter.ai/api/v1"
+            logger.info(f"🌐 [OpenRouter] 使用模型: {llm_model}")
+            logger.info(f"🌐 [OpenRouter] API端点: https://openrouter.ai/api/v1")
 
-        # 修复路径问题
-        config["data_dir"] = str(project_root / "data")
-        config["results_dir"] = str(project_root / "results")
-        config["data_cache_dir"] = str(project_root / "tradingagents" / "dataflows" / "data_cache")
+        # 修复路径问题 - 优先使用环境变量配置
+        # 数据目录：优先使用环境变量，否则使用默认路径
+        if not config.get("data_dir") or config["data_dir"] == "./data":
+            env_data_dir = os.getenv("TRADINGAGENTS_DATA_DIR")
+            if env_data_dir:
+                # 如果环境变量是相对路径，相对于项目根目录解析
+                if not os.path.isabs(env_data_dir):
+                    config["data_dir"] = str(project_root / env_data_dir)
+                else:
+                    config["data_dir"] = env_data_dir
+            else:
+                config["data_dir"] = str(project_root / "data")
+
+        # 结果目录：优先使用环境变量，否则使用默认路径
+        if not config.get("results_dir") or config["results_dir"] == "./results":
+            env_results_dir = os.getenv("TRADINGAGENTS_RESULTS_DIR")
+            if env_results_dir:
+                # 如果环境变量是相对路径，相对于项目根目录解析
+                if not os.path.isabs(env_results_dir):
+                    config["results_dir"] = str(project_root / env_results_dir)
+                else:
+                    config["results_dir"] = env_results_dir
+            else:
+                config["results_dir"] = str(project_root / "results")
+
+        # 缓存目录：优先使用环境变量，否则使用默认路径
+        if not config.get("data_cache_dir"):
+            env_cache_dir = os.getenv("TRADINGAGENTS_CACHE_DIR")
+            if env_cache_dir:
+                # 如果环境变量是相对路径，相对于项目根目录解析
+                if not os.path.isabs(env_cache_dir):
+                    config["data_cache_dir"] = str(project_root / env_cache_dir)
+                else:
+                    config["data_cache_dir"] = env_cache_dir
+            else:
+                config["data_cache_dir"] = str(project_root / "tradingagents" / "dataflows" / "data_cache")
 
         # 确保目录存在
         update_progress("📁 创建必要的目录...")
         os.makedirs(config["data_dir"], exist_ok=True)
         os.makedirs(config["results_dir"], exist_ok=True)
         os.makedirs(config["data_cache_dir"], exist_ok=True)
+
+        logger.info(f"📁 目录配置:")
+        logger.info(f"  - 数据目录: {config['data_dir']}")
+        logger.info(f"  - 结果目录: {config['results_dir']}")
+        logger.info(f"  - 缓存目录: {config['data_cache_dir']}")
+        logger.info(f"  - 环境变量 TRADINGAGENTS_RESULTS_DIR: {os.getenv('TRADINGAGENTS_RESULTS_DIR', '未设置')}")
 
         logger.info(f"使用配置: {config}")
         logger.info(f"分析师列表: {analysts}")

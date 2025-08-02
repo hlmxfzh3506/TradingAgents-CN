@@ -89,18 +89,21 @@ env\Scripts\activate
 # macOS/Linux:
 source env/bin/activate
 
-# 4. 安装依赖
-pip install -r requirements.txt
+# 4. 升级pip (重要！避免安装错误)
+python -m pip install --upgrade pip
 
-# 5. 复制环境配置
+# 5. 安装依赖
+pip install -e .
+
+# 6. 复制环境配置
 cp .env.example .env
 
-# 6. 编辑API密钥（必须）
+# 7. 编辑API密钥（必须）
 # Windows: notepad .env
 # macOS/Linux: nano .env
 
-# 7. 启动应用
-python -m streamlit run web/app.py
+# 8. 启动应用
+python start_web.py
 ```
 
 ## 🐳 Docker安装（推荐）

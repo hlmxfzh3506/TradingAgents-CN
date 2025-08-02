@@ -42,7 +42,6 @@ frontend/.env.production.local
 frontend/auto-imports.d.ts
 frontend/components.d.ts
 
-
 # 环境变量文件 (包含敏感API密钥)
 .env
 .env.local
@@ -50,6 +49,7 @@ frontend/components.d.ts
 .env.db
 .env.mongodb*
 backend/.backend_env
+
 
 # 系统文件
 .DS_Store
@@ -71,8 +71,7 @@ temp/
 
 # 数据缓存目录 (不纳入版本控制)
 cache/
-data/cache/
-data/finnhub_data/
+data/
 dataflows/data_cache/
 tradingagents/dataflows/data_cache/
 finnhub_data/
